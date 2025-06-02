@@ -1,9 +1,12 @@
 package org.act.houserentingsystem.security.config;
 
 import lombok.RequiredArgsConstructor;
+import org.act.houserentingsystem.security.handlers.CustomAccessDeniedHandler;
+import org.act.houserentingsystem.security.handlers.CustomAuthenticationEntryPoint;
 import org.act.houserentingsystem.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,14 +30,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/houses", "/api/houses/**").permitAll()  // PUBLIC: Get all houses, get house by id
+                        .requestMatchers(HttpMethod.GET, "/api/houses", "/api/houses/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/houses").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/houses/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/houses/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager() {

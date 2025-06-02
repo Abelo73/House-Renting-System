@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.act.houserentingsystem.dto.HouseDTO;
 import org.act.houserentingsystem.dto.OwnerDTO;
 import org.act.houserentingsystem.entity.House;
+import org.act.houserentingsystem.entity.HouseSpecification;
 import org.act.houserentingsystem.entity.User;
 import org.act.houserentingsystem.repository.HouseRepository;
 import org.act.houserentingsystem.repository.UserRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,9 +46,38 @@ public class HouseServiceImpl implements HouseService {
         existingHouse.setAmenities(house.getAmenities());
         existingHouse.setImageUrls(house.getImageUrls());
 
+        // ✅ Add these missing fields
+        existingHouse.setStatus(house.getStatus());
+        existingHouse.setFurnished(house.getFurnished());
+        existingHouse.setRentDurationMonths(house.getRentDurationMonths());
+        existingHouse.setContactNumber(house.getContactNumber());
+        existingHouse.setDepositAmount(house.getDepositAmount());
+
+        // Set updatedOn
+        existingHouse.setUpdatedOn(Instant.now());
+
         House updatedHouse = houseRepository.save(existingHouse);
         return mapToHouseDTO(updatedHouse);
     }
+
+
+//    @Override
+//    public HouseDTO updateHouse(Long id, House house) {
+//        House existingHouse = houseRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("House with id " + id + " not found"));
+//
+//        existingHouse.setTitle(house.getTitle());
+//        existingHouse.setDescription(house.getDescription());
+//        existingHouse.setPrice(house.getPrice());
+//        existingHouse.setLocation(house.getLocation());
+//        existingHouse.setBedrooms(house.getBedrooms());
+//        existingHouse.setNegotiable(house.isNegotiable());
+//        existingHouse.setAmenities(house.getAmenities());
+//        existingHouse.setImageUrls(house.getImageUrls());
+//
+//        House updatedHouse = houseRepository.save(existingHouse);
+//        return mapToHouseDTO(updatedHouse);
+//    }
 
     @Override
     public void deleteHouse(Long id) {
@@ -68,6 +100,16 @@ public class HouseServiceImpl implements HouseService {
         return houseRepository.findById(id)
                 .map(this::mapToHouseDTO);
     }
+
+    @Override
+    public List<HouseDTO> filterHouses(Double minPrice, Double maxPrice, String location, List<String> amenities) {
+        Specification<House> spec = HouseSpecification.filterBy(minPrice, maxPrice, location, amenities);
+        List<House> houses = houseRepository.findAll(spec);
+        return houses.stream()
+                .map(this::mapToHouseDTO)
+                .collect(Collectors.toList());
+    }
+
 
     // Helper mapping method
     private HouseDTO mapToHouseDTO(House house) {

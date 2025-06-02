@@ -29,16 +29,7 @@ public class HouseController {
     }
 
 
-//    @PostMapping("/{ownerId}")
-//    public ResponseEntity<ApiResponse<HouseDTO>> addHouse(@RequestBody House house, @PathVariable Long ownerId) {
-//        HouseDTO houseDTO = houseService.addHouse(house, ownerId);
-//        ApiResponse<HouseDTO> response = ApiResponse.<HouseDTO>builder()
-//                .success(true)
-//                .message("House added successfully")
-//                .data(houseDTO)
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<HouseDTO>> updateHouse(@PathVariable Long id, @RequestBody House house) {
@@ -84,4 +75,22 @@ public class HouseController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<ApiResponse<List<HouseDTO>>> filterHouses(
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) List<String> amenities) {
+
+        List<HouseDTO> filteredHouses = houseService.filterHouses(minPrice, maxPrice, location, amenities);
+        ApiResponse<List<HouseDTO>> response = ApiResponse.<List<HouseDTO>>builder()
+                .success(true)
+                .message("Filtered houses fetched successfully")
+                .data(filteredHouses)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -17,4 +17,7 @@ public interface HouseService {
     List<HouseDTO> getAllHouses();
 
     Optional<HouseDTO> getHouseById(Long id);
+
+    // HouseService.java (interface)
+    List<HouseDTO> filterHouses(Double minPrice, Double maxPrice, String location, List<String> amenities);
 }

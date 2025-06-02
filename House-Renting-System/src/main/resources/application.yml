@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/house_renting_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # for dev; change to validate or none for prod
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+server:
+  port: 8080
+
+security:
+  jwt:
+    secret: S+NibfXH5wYwvAKoFOQv3oP+Vl/vUeR15yTwYpmygb8Lx3jb/AYVF1JVc4rq2VBHlXIW5pbzC4kau8yUABOV+A==
+    expiration: 86400000 # 1 day in milliseconds
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
